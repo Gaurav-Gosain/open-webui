@@ -19,7 +19,10 @@
 	const i18n = getContext('i18n');
 
 	let _src = '';
-	$: _src = src.startsWith('/') ? `${WEBUI_BASE_URL}${src}` : src;
+	$: _src =
+		src.startsWith('/') && WEBUI_BASE_URL && !src.startsWith(WEBUI_BASE_URL)
+			? `${WEBUI_BASE_URL}${src}`
+			: src;
 
 	let showImagePreview = false;
 </script>

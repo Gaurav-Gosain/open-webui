@@ -196,8 +196,23 @@ export const getImageGenerationModels = async (token: string = '') => {
 	return res;
 };
 
-export const imageGenerations = async (token: string = '', prompt: string) => {
+export const imageGenerations = async (
+	token: string = '',
+	prompt: string,
+	options?: {
+		model?: string;
+		size?: string;
+		n?: number;
+		negative_prompt?: string;
+	}
+) => {
 	let error = null;
+
+	const body: Record<string, unknown> = { prompt };
+	if (options?.model) body.model = options.model;
+	if (options?.size) body.size = options.size;
+	if (options?.n) body.n = options.n;
+	if (options?.negative_prompt) body.negative_prompt = options.negative_prompt;
 
 	const res = await fetch(`${IMAGES_API_BASE_URL}/generations`, {
 		method: 'POST',
@@ -206,9 +221,7 @@ export const imageGenerations = async (token: string = '', prompt: string) => {
 			'Content-Type': 'application/json',
 			...(token && { authorization: `Bearer ${token}` })
 		},
-		body: JSON.stringify({
-			prompt: prompt
-		})
+		body: JSON.stringify(body)
 	})
 		.then(async (res) => {
 			if (!res.ok) throw await res.json();
