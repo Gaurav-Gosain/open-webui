@@ -124,11 +124,7 @@
 					class="shrink-0 rounded-xl overflow-hidden hover:opacity-80 transition"
 					on:click={() => filesInputElement.click()}
 				>
-					<img
-						src={image || `${base}/static/favicon.png`}
-						class="size-8 object-cover"
-						alt=""
-					/>
+					<img src={image || `${base}/static/favicon.png`} class="size-8 object-cover" alt="" />
 				</button>
 				<div class="flex-1">
 					<div class=" text-gray-500 text-xs">{$i18n.t('Name')}</div>

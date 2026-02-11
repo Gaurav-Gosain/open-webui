@@ -2052,11 +2052,7 @@
 						break;
 					}
 					if (update.sources) {
-						chatCompletionEventHandler(
-							{ sources: update.sources },
-							responseMessage,
-							$chatId
-						);
+						chatCompletionEventHandler({ sources: update.sources }, responseMessage, $chatId);
 						continue;
 					}
 					if (update.selectedModelId) {
@@ -2068,11 +2064,7 @@
 						continue;
 					}
 					if (update.usage) {
-						chatCompletionEventHandler(
-							{ usage: update.usage },
-							responseMessage,
-							$chatId
-						);
+						chatCompletionEventHandler({ usage: update.usage }, responseMessage, $chatId);
 						continue;
 					}
 					if (update.value) {

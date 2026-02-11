@@ -20,5 +20,7 @@
 	class=" {className} object-cover rounded-full"
 	alt="profile"
 	draggable="false"
-	on:error={(e) => { e.currentTarget.src = fallback; }}
+	on:error={(e) => {
+		e.currentTarget.src = fallback;
+	}}
 />

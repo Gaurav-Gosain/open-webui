@@ -462,7 +462,10 @@
 											<div
 												class=" flex cursor-pointer w-full px-3.5 py-1.5 border border-gray-50 dark:border-gray-850/30 bg-transparent dark:hover:bg-gray-850 hover:bg-white rounded-2xl transition"
 											>
-												<a href={`${base}/notes/${note.id}`} class="w-full flex flex-col justify-between">
+												<a
+													href={`${base}/notes/${note.id}`}
+													class="w-full flex flex-col justify-between"
+												>
 													<div class="flex-1">
 														<div class="  flex items-center gap-2 self-center justify-between">
 															<Tooltip

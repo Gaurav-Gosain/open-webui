@@ -34,8 +34,7 @@
 				...modelInfo,
 				meta: {
 					...modelInfo.meta,
-					profile_image_url:
-						modelInfo.meta.profile_image_url ?? `${base}/static/favicon.png`,
+					profile_image_url: modelInfo.meta.profile_image_url ?? `${base}/static/favicon.png`,
 					suggestion_prompts: modelInfo.meta.suggestion_prompts
 						? modelInfo.meta.suggestion_prompts.filter((prompt) => prompt.content !== '')
 						: null
