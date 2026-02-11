@@ -1,5 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 import sha256 from 'js-sha256';
+import { base } from '$app/paths';
 import { WEBUI_BASE_URL } from '$lib/constants';
 
 import dayjs from 'dayjs';
@@ -342,7 +343,7 @@ export const generateInitialsImage = (name) => {
 		console.log(
 			'generateInitialsImage: failed pixel test, fingerprint evasion is likely. Using default image.'
 		);
-		return `${WEBUI_BASE_URL}/user.png`;
+		return `${base}/user.png`;
 	}
 
 	ctx.fillStyle = '#F39C12';

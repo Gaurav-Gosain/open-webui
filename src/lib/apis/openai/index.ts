@@ -377,6 +377,15 @@ export const generateOpenAIChatCompletion = async (
 	})
 		.then(async (res) => {
 			if (!res.ok) throw await res.json();
+			const contentType = res.headers.get('content-type') || '';
+			if (
+				contentType.includes('text/event-stream') ||
+				contentType.includes('application/x-ndjson')
+			) {
+				// SSE fallback: backend returned a stream (no socket.io connection).
+				// Return the raw Response so the caller can process the SSE stream.
+				return res;
+			}
 			return res.json();
 		})
 		.catch((err) => {

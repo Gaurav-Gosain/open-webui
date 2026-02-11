@@ -56,8 +56,9 @@ log = logging.getLogger(__name__)
 
 REDIS = None
 
-# Configure CORS for Socket.IO
-SOCKETIO_CORS_ORIGINS = "*" if CORS_ALLOW_ORIGIN == ["*"] else CORS_ALLOW_ORIGIN
+# Disable CORS in socket.io — FastAPI's CORSMiddleware already handles it.
+# Having both causes duplicate Access-Control-Allow-Origin headers which browsers reject.
+SOCKETIO_CORS_ORIGINS = []
 
 if WEBSOCKET_MANAGER == "redis":
     if WEBSOCKET_SENTINEL_HOSTS:

@@ -10,7 +10,7 @@
 	import ChatBubbles from '$lib/components/icons/ChatBubbles.svelte';
 	import ChatBubble from '$lib/components/icons/ChatBubble.svelte';
 	import ChatBubbleOval from '$lib/components/icons/ChatBubbleOval.svelte';
-	import { goto } from '$app/navigation';
+	import { goto } from '$lib/utils/navigation';
 	import Emoji from '$lib/components/common/Emoji.svelte';
 	import Tooltip from '$lib/components/common/Tooltip.svelte';
 

@@ -490,6 +490,7 @@ from open_webui.env import (
     WEBUI_ADMIN_EMAIL,
     WEBUI_ADMIN_PASSWORD,
     WEBUI_ADMIN_NAME,
+    WEBUI_BASE_PATH,
 )
 
 
@@ -2333,25 +2334,25 @@ async def get_manifest_json():
             "name": app.state.WEBUI_NAME,
             "short_name": app.state.WEBUI_NAME,
             "description": f"{app.state.WEBUI_NAME} is an open, extensible, user-friendly interface for AI that adapts to your workflow.",
-            "start_url": "/",
+            "start_url": f"{WEBUI_BASE_PATH}/",
             "display": "standalone",
             "background_color": "#343541",
             "icons": [
                 {
-                    "src": "/static/logo.png",
+                    "src": f"{WEBUI_BASE_PATH}/static/logo.png",
                     "type": "image/png",
                     "sizes": "500x500",
                     "purpose": "any",
                 },
                 {
-                    "src": "/static/logo.png",
+                    "src": f"{WEBUI_BASE_PATH}/static/logo.png",
                     "type": "image/png",
                     "sizes": "500x500",
                     "purpose": "maskable",
                 },
             ],
             "share_target": {
-                "action": "/",
+                "action": f"{WEBUI_BASE_PATH}/",
                 "method": "GET",
                 "params": {"text": "shared"},
             },
@@ -2405,9 +2406,9 @@ def swagger_ui_html(*args, **kwargs):
     return get_swagger_ui_html(
         *args,
         **kwargs,
-        swagger_js_url="/static/swagger-ui/swagger-ui-bundle.js",
-        swagger_css_url="/static/swagger-ui/swagger-ui.css",
-        swagger_favicon_url="/static/swagger-ui/favicon.png",
+        swagger_js_url=f"{WEBUI_BASE_PATH}/static/swagger-ui/swagger-ui-bundle.js",
+        swagger_css_url=f"{WEBUI_BASE_PATH}/static/swagger-ui/swagger-ui.css",
+        swagger_favicon_url=f"{WEBUI_BASE_PATH}/static/swagger-ui/favicon.png",
     )
 
 
@@ -2424,3 +2425,32 @@ else:
     log.warning(
         f"Frontend build directory not found at '{FRONTEND_BUILD_DIR}'. Serving API only."
     )
+
+
+if WEBUI_BASE_PATH:
+    from starlette.applications import Starlette
+    from starlette.routing import Mount as StarletteMount, Route as StarletteRoute
+
+    async def _health_endpoint(request):
+        return JSONResponse({"status": True})
+
+    async def _redirect_base(request):
+        return RedirectResponse(url=f"{WEBUI_BASE_PATH}/")
+
+    # Starlette Mount does NOT modify scope['path'] - only scope['root_path'] changes.
+    # socket.io checks scope['path'] directly, so it needs the full path including
+    # the base path prefix. The default engineio_path is '/ws/socket.io/' but with
+    # the base path, scope['path'] is '/chat/ws/socket.io/'.
+    socket_app.engineio_path = f"{WEBUI_BASE_PATH}/ws/socket.io/"
+
+    _outer = Starlette(
+        routes=[
+            StarletteRoute("/health", _health_endpoint),
+            StarletteRoute(WEBUI_BASE_PATH, _redirect_base),
+            StarletteMount(WEBUI_BASE_PATH, app=app),
+        ]
+    )
+
+    application = _outer
+else:
+    application = app

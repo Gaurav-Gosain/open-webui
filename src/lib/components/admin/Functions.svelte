@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { base } from '$app/paths';
 	import { toast } from 'svelte-sonner';
 	import fileSaver from 'file-saver';
 	const { saveAs } = fileSaver;
@@ -6,7 +7,7 @@
 	import { WEBUI_NAME, config, functions as _functions, models, settings, user } from '$lib/stores';
 	import { onMount, getContext, tick } from 'svelte';
 
-	import { goto } from '$app/navigation';
+	import { goto } from '$lib/utils/navigation';
 	import {
 		createNewFunction,
 		deleteFunctionById,
@@ -412,7 +413,7 @@
 						>
 							<a
 								class=" flex flex-1 space-x-3.5 cursor-pointer w-full"
-								href={`/admin/functions/edit?id=${encodeURIComponent(func.id)}`}
+								href={`${base}/admin/functions/edit?id=${encodeURIComponent(func.id)}`}
 							>
 								<div class="flex items-center text-left">
 									<div class=" flex-1 self-center pl-1">

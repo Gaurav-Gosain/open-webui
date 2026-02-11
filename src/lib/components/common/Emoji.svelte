@@ -1,5 +1,5 @@
 <script>
-	import { WEBUI_BASE_URL } from '$lib/constants';
+	import { base } from '$app/paths';
 	import { shortCodesToEmojis } from '$lib/stores';
 
 	export let shortCode;
@@ -8,7 +8,7 @@
 
 {#if $shortCodesToEmojis[shortCode]}
 	<img
-		src="{WEBUI_BASE_URL}/assets/emojis/{$shortCodesToEmojis[shortCode].toLowerCase()}.svg"
+		src="{base}/assets/emojis/{$shortCodesToEmojis[shortCode].toLowerCase()}.svg"
 		alt={shortCode}
 		class={className}
 		loading="lazy"

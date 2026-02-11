@@ -87,6 +87,13 @@ if "cuda_error" in locals():
 
 SRC_LOG_LEVELS = {}  # Legacy variable, do not remove
 
+####################################
+# WEBUI_BASE_PATH
+####################################
+
+_base = os.environ.get("WEBUI_BASE_PATH", "").strip("/")
+WEBUI_BASE_PATH = f"/{_base}" if _base else ""
+
 WEBUI_NAME = os.environ.get("WEBUI_NAME", "Open WebUI")
 if WEBUI_NAME != "Open WebUI":
     WEBUI_NAME += " (Open WebUI)"

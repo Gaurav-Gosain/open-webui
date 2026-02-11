@@ -1,4 +1,5 @@
 <script>
+	import { base } from '$app/paths';
 	import { io } from 'socket.io-client';
 	import { spring } from 'svelte/motion';
 	import PyodideWorker from '$lib/workers/pyodide.worker?worker';
@@ -32,7 +33,7 @@
 		channels,
 		channelId
 	} from '$lib/stores';
-	import { goto } from '$app/navigation';
+	import { goto } from '$lib/utils/navigation';
 	import { page } from '$app/stores';
 	import { beforeNavigate } from '$app/navigation';
 	import { updated } from '$app/state';
@@ -99,12 +100,22 @@
 	const BREAKPOINT = 768;
 
 	const setupSocket = async (enableWebsocket) => {
-		const _socket = io(`${WEBUI_BASE_URL}` || undefined, {
+		// Use origin only for socket.io connection. socket.io interprets URL
+		// path segments as namespaces, so io('http://host/chat') would try to
+		// connect to namespace '/chat' instead of '/'. The `path` option
+		// already includes the base path prefix for routing.
+		let socketUrl;
+		try {
+			socketUrl = WEBUI_BASE_URL ? new URL(WEBUI_BASE_URL, location.origin).origin : undefined;
+		} catch {
+			socketUrl = undefined;
+		}
+		const _socket = io(socketUrl, {
 			reconnection: true,
 			reconnectionDelay: 1000,
 			reconnectionDelayMax: 5000,
 			randomizationFactor: 0.5,
-			path: '/ws/socket.io',
+			path: base + '/ws/socket.io',
 			transports: enableWebsocket ? ['websocket'] : ['polling', 'websocket'],
 			auth: { token: localStorage.token }
 		});
@@ -351,7 +362,7 @@
 					if ($settings?.notificationSoundAlways ?? false) {
 						playingNotificationSound.set(true);
 
-						const audio = new Audio(`/audio/notification.mp3`);
+						const audio = new Audio(`${base}/audio/notification.mp3`);
 						audio.play().finally(() => {
 							// Ensure the global state is reset after the sound finishes
 							playingNotificationSound.set(false);
@@ -362,7 +373,7 @@
 						if ($settings?.notificationEnabled ?? false) {
 							new Notification(`${title} • Open WebUI`, {
 								body: content,
-								icon: `${WEBUI_BASE_URL}/static/favicon.png`
+								icon: `${base}/static/favicon.png`
 							});
 						}
 					}
@@ -600,7 +611,7 @@
 			user.set(null);
 			localStorage.removeItem('token');
 
-			location.href = res?.redirect_url ?? '/auth';
+			location.href = res?.redirect_url ?? `${base}/auth`;
 		}
 	};
 
@@ -772,7 +783,7 @@
 			if ($config) {
 				await setupSocket($config.features?.enable_websocket ?? true);
 
-				const currentUrl = `${window.location.pathname}${window.location.search}`;
+				const currentUrl = `${$page.url.pathname}${$page.url.search}`;
 				const encodedUrl = encodeURIComponent(currentUrl);
 
 				if (localStorage.token) {
@@ -821,7 +832,7 @@
 
 			document.getElementById('splash-screen')?.remove();
 
-			const audio = new Audio(`/audio/greeting.mp3`);
+			const audio = new Audio(`${base}/audio/greeting.mp3`);
 			const playAudio = () => {
 				audio.play();
 				document.removeEventListener('click', playAudio);
@@ -853,7 +864,7 @@
 
 <svelte:head>
 	<title>{$WEBUI_NAME}</title>
-	<link crossorigin="anonymous" rel="icon" href="{WEBUI_BASE_URL}/static/favicon.png" />
+	<link crossorigin="anonymous" rel="icon" href="{base}/static/favicon.png" />
 
 	<meta name="apple-mobile-web-app-title" content={$WEBUI_NAME} />
 	<meta name="description" content={$WEBUI_NAME} />
@@ -861,7 +872,7 @@
 		rel="search"
 		type="application/opensearchdescription+xml"
 		title={$WEBUI_NAME}
-		href="/opensearch.xml"
+		href="{base}/opensearch.xml"
 		crossorigin="use-credentials"
 	/>
 </svelte:head>

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { base } from '$app/paths';
 	import { marked } from 'marked';
 	import { toast } from 'svelte-sonner';
 	import fileSaver from 'file-saver';
@@ -29,7 +30,7 @@
 	// Assuming $i18n.languages is an array of language codes
 	$: loadLocale($i18n.languages);
 
-	import { goto } from '$app/navigation';
+	import { goto } from '$lib/utils/navigation';
 	import { WEBUI_NAME, config, prompts as _prompts, user } from '$lib/stores';
 	import { createNewNote, deleteNoteById, getNoteList, searchNotes } from '$lib/apis/notes';
 	import { capitalizeFirstLetter, copyToClipboard, getTimeRange } from '$lib/utils';
@@ -461,7 +462,7 @@
 											<div
 												class=" flex cursor-pointer w-full px-3.5 py-1.5 border border-gray-50 dark:border-gray-850/30 bg-transparent dark:hover:bg-gray-850 hover:bg-white rounded-2xl transition"
 											>
-												<a href={`/notes/${note.id}`} class="w-full flex flex-col justify-between">
+												<a href={`${base}/notes/${note.id}`} class="w-full flex flex-col justify-between">
 													<div class="flex-1">
 														<div class="  flex items-center gap-2 self-center justify-between">
 															<Tooltip
@@ -508,7 +509,7 @@
 																		onCopyLink={async () => {
 																			const baseUrl = window.location.origin;
 																			const res = await copyToClipboard(
-																				`${baseUrl}/notes/${note.id}`
+																				`${baseUrl}${base}/notes/${note.id}`
 																			);
 
 																			if (res) {
@@ -549,7 +550,7 @@
 											>
 												<div class=" flex flex-1 space-x-4 cursor-pointer w-full">
 													<a
-														href={`/notes/${note.id}`}
+														href={`${base}/notes/${note.id}`}
 														class="w-full -translate-y-0.5 flex flex-col justify-between"
 													>
 														<div class="flex-1">
@@ -570,7 +571,7 @@
 																		onCopyLink={async () => {
 																			const baseUrl = window.location.origin;
 																			const res = await copyToClipboard(
-																				`${baseUrl}/notes/${note.id}`
+																				`${baseUrl}${base}/notes/${note.id}`
 																			);
 
 																			if (res) {

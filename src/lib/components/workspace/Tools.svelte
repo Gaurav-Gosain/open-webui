@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { base } from '$app/paths';
 	import { toast } from 'svelte-sonner';
 	import fileSaver from 'file-saver';
 	const { saveAs } = fileSaver;
@@ -8,7 +9,7 @@
 
 	import { WEBUI_NAME, config, prompts, tools as _tools, user } from '$lib/stores';
 
-	import { goto } from '$app/navigation';
+	import { goto } from '$lib/utils/navigation';
 	import {
 		createNewTool,
 		loadToolByUrl,
@@ -289,7 +290,7 @@
 				{:else}
 					<a
 						class=" px-2 py-1.5 rounded-xl bg-black text-white dark:bg-white dark:text-black transition font-medium text-sm flex items-center"
-						href="/workspace/tools/create"
+						href="{base}/workspace/tools/create"
 					>
 						<Plus className="size-3" strokeWidth="2.5" />
 
@@ -365,7 +366,7 @@
 							{#if tool.write_access}
 								<a
 									class=" flex flex-1 space-x-3.5 cursor-pointer w-full"
-									href={`/workspace/tools/edit?id=${encodeURIComponent(tool.id)}`}
+									href={`${base}/workspace/tools/edit?id=${encodeURIComponent(tool.id)}`}
 								>
 									<div class="flex items-center text-left">
 										<div class=" flex-1 self-center">

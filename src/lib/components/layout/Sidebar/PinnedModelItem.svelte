@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { base } from '$app/paths';
 	import { getContext } from 'svelte';
 
 	const i18n = getContext('i18n');
@@ -30,7 +31,7 @@
 	>
 		<a
 			class="grow flex items-center space-x-2.5 rounded-xl px-2.5 py-[7px] group-hover:bg-gray-100 dark:group-hover:bg-gray-900 transition"
-			href="/?model={model?.id}"
+			href="{base}/?model={model?.id}"
 			on:click={onClick}
 			draggable="false"
 		>

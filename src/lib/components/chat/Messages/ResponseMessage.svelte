@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { base } from '$app/paths';
 	import { toast } from 'svelte-sonner';
 	import dayjs from 'dayjs';
 
@@ -610,7 +611,9 @@
 	>
 		<div class={`shrink-0 ltr:mr-3 rtl:ml-3 hidden @lg:flex mt-1 `}>
 			<ProfileImage
-				src={`${WEBUI_API_BASE_URL}/models/model/profile/image?id=${model?.id}&lang=${$i18n.language}`}
+				src={model?.id || message.model
+				? `${WEBUI_API_BASE_URL}/models/model/profile/image?id=${encodeURIComponent(model?.id ?? message.model)}&lang=${$i18n.language}`
+				: `${base}/static/favicon.png`}
 				className={'size-8 assistant-message-profile-image'}
 			/>
 		</div>

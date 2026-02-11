@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { base } from '$app/paths';
 	import { v4 as uuidv4 } from 'uuid';
 	import { toast } from 'svelte-sonner';
 	import { PaneGroup, Pane, PaneResizer } from 'paneforge';
@@ -7,7 +8,7 @@
 	import { fade } from 'svelte/transition';
 	const i18n: Writable<i18nType> = getContext('i18n');
 
-	import { goto } from '$app/navigation';
+	import { goto } from '$lib/utils/navigation';
 	import { page } from '$app/stores';
 
 	import { get, type Unsubscriber, type Writable } from 'svelte/store';
@@ -995,7 +996,7 @@
 		await showArtifacts.set(false);
 
 		if ($page.url.pathname.includes('/c/')) {
-			window.history.replaceState(history.state, '', `/`);
+			window.history.replaceState(history.state, '', `${base}/`);
 		}
 
 		autoScroll = true;
@@ -2034,7 +2035,55 @@
 		});
 
 		if (res) {
-			if (res.error) {
+			if (res instanceof Response) {
+				// SSE fallback: socket.io unavailable, process stream directly
+				const textStream = await createOpenAITextStream(res.body!, false);
+				for await (const update of textStream) {
+					if (update.done) {
+						chatCompletionEventHandler(
+							{ done: true, content: responseMessage.content },
+							responseMessage,
+							$chatId
+						);
+						break;
+					}
+					if (update.error) {
+						await handleOpenAIError(update.error, responseMessage);
+						break;
+					}
+					if (update.sources) {
+						chatCompletionEventHandler(
+							{ sources: update.sources },
+							responseMessage,
+							$chatId
+						);
+						continue;
+					}
+					if (update.selectedModelId) {
+						chatCompletionEventHandler(
+							{ selected_model_id: update.selectedModelId },
+							responseMessage,
+							$chatId
+						);
+						continue;
+					}
+					if (update.usage) {
+						chatCompletionEventHandler(
+							{ usage: update.usage },
+							responseMessage,
+							$chatId
+						);
+						continue;
+					}
+					if (update.value) {
+						chatCompletionEventHandler(
+							{ choices: [{ delta: { content: update.value } }] },
+							responseMessage,
+							$chatId
+						);
+					}
+				}
+			} else if (res.error) {
 				await handleOpenAIError(res.error, responseMessage);
 			} else {
 				if (taskIds) {
@@ -2297,7 +2346,7 @@
 			_chatId = chat.id;
 			await chatId.set(_chatId);
 
-			window.history.replaceState(history.state, '', `/c/${_chatId}`);
+			window.history.replaceState(history.state, '', `${base}/c/${_chatId}`);
 
 			await tick();
 
