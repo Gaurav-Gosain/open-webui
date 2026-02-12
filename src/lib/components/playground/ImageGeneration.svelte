@@ -4,7 +4,7 @@
 	import { onMount, getContext } from 'svelte';
 	import { WEBUI_BASE_URL } from '$lib/constants';
 	import { user, models, settings, config } from '$lib/stores';
-	import { imageGenerations, getImageGenerationModels } from '$lib/apis/images';
+	import { imageGenerations } from '$lib/apis/images';
 	import Selector from '$lib/components/chat/ModelSelector/Selector.svelte';
 	import Image from '$lib/components/common/Image.svelte';
 
@@ -17,24 +17,14 @@
 	let n = 1;
 
 	let selectedModelId = '';
-	let imageModels: { id: string; name: string }[] = [];
 
 	let loading = false;
 	let generatedImages: { url: string }[] = [];
 
-	const loadModels = async () => {
-		try {
-			const res = await getImageGenerationModels(localStorage.token);
-			if (res) {
-				imageModels = res;
-				if (imageModels.length > 0 && !selectedModelId) {
-					selectedModelId = imageModels[0].id;
-				}
-			}
-		} catch (e) {
-			console.error('Failed to load image models:', e);
-		}
-	};
+	// Filter models that have the image_generation capability enabled
+	$: imageCapableModels = $models.filter(
+		(model) => model?.info?.meta?.capabilities?.image_generation === true
+	);
 
 	const submitHandler = async () => {
 		if (!prompt.trim()) {
@@ -69,7 +59,10 @@
 			await goto('/');
 		}
 
-		await loadModels();
+		if (imageCapableModels.length > 0) {
+			selectedModelId = imageCapableModels[0].id;
+		}
+
 		loaded = true;
 	});
 </script>
@@ -83,26 +76,24 @@
 					<div class="flex w-full">
 						<div class="overflow-hidden w-full">
 							<div class="max-w-full">
-								{#if imageModels.length > 0}
+								{#if imageCapableModels.length > 0}
 									<Selector
 										placeholder={$i18n.t('Select a model')}
-										items={imageModels.map((model) => ({
-											value: model.id,
-											label: model.name ?? model.id,
-											model: model
-										}))}
-										bind:value={selectedModelId}
-									/>
-								{:else}
-									<Selector
-										placeholder={$i18n.t('Select a model')}
-										items={$models.map((model) => ({
+										items={imageCapableModels.map((model) => ({
 											value: model.id,
 											label: model.name,
 											model: model
 										}))}
 										bind:value={selectedModelId}
 									/>
+								{:else}
+									<div
+										class="text-sm text-gray-500 dark:text-gray-400 p-2 border border-gray-100/30 dark:border-gray-850/30 rounded-lg"
+									>
+										{$i18n.t(
+											'No models with Image Generation capability found. Enable it in Admin > Workspace > Models.'
+										)}
+									</div>
 								{/if}
 							</div>
 						</div>
@@ -111,10 +102,10 @@
 					<!-- Size & Count -->
 					<div class="flex gap-2 items-center text-sm">
 						<label class="flex items-center gap-1 text-gray-500 dark:text-gray-400">
-							{$i18n.t('Size')}
+							<span class="shrink-0">{$i18n.t('Size')}</span>
 							<select
 								bind:value={size}
-								class="bg-transparent border border-gray-100/30 dark:border-gray-850/30 rounded-lg px-2 py-1 text-sm outline-none"
+								class="appearance-none bg-transparent border border-gray-100/30 dark:border-gray-850/30 rounded-lg px-2 py-1 pr-6 text-sm outline-none cursor-pointer"
 							>
 								<option value="256x256">256x256</option>
 								<option value="512x512">512x512</option>
@@ -125,7 +116,7 @@
 						</label>
 
 						<label class="flex items-center gap-1 text-gray-500 dark:text-gray-400">
-							{$i18n.t('Count')}
+							<span class="shrink-0">{$i18n.t('Count')}</span>
 							<input
 								type="number"
 								bind:value={n}
@@ -219,7 +210,7 @@
 				<button
 					class="px-3.5 py-1.5 text-sm font-medium bg-black hover:bg-gray-900 text-white dark:bg-white dark:text-black dark:hover:bg-gray-100 transition rounded-full disabled:opacity-50 disabled:cursor-not-allowed"
 					on:click={submitHandler}
-					disabled={loading || !prompt.trim()}
+					disabled={loading || !prompt.trim() || !selectedModelId}
 				>
 					{#if loading}
 						{$i18n.t('Generating...')}
