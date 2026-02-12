@@ -608,7 +608,7 @@ async def image_generations(
                 ),
                 **(
                     {}
-                    if model and model.startswith("gpt-image")
+                    if model and "gpt-image" in model
                     else {"response_format": "b64_json"}
                 ),
                 **(
