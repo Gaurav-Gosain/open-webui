@@ -580,12 +580,11 @@ async def image_generations(
 
     metadata = metadata or {}
 
-    model = get_image_model(request)
+    model = form_data.model if form_data.model else get_image_model(request)
 
     r = None
     try:
         if request.app.state.config.IMAGE_GENERATION_ENGINE == "openai":
-
             headers = {
                 "Authorization": f"Bearer {request.app.state.config.IMAGES_OPENAI_API_KEY}",
                 "Content-Type": "application/json",
@@ -609,9 +608,7 @@ async def image_generations(
                 ),
                 **(
                     {}
-                    if request.app.state.config.IMAGE_GENERATION_MODEL.startswith(
-                        "gpt-image"
-                    )
+                    if model and model.startswith("gpt-image")
                     else {"response_format": "b64_json"}
                 ),
                 **(
